@@ -26,14 +26,17 @@ The same cleaning and integration job performed twice, once in each tool, so the
 
 **Finding worth recording.** Before deleting records with missing values, the dropped set was routed to a separate output and inspected. `RegionPopulation`, `MedianHouseholdIncome`, and `AverageHouseholdSize` were zero in every dropped record, meaning those regions had no residents. Deletion was therefore the right call and mean imputation would have invented population that did not exist.
 
-**Record counts.**
+**Record counts.** The two figures below were read back from the saved RapidMiner repository datasets. The intermediate stages were not saved separately, so those cells are open.
 
 | Stage | R | RapidMiner |
 |---|---|---|
-| Raw import | | |
+| Raw import (`census2000`) | | 33,190 rows, 7 attributes |
+| Postal code reference (`US`) | | 41,466 rows, 12 attributes |
 | After duplicate removal | | |
 | After missing-value removal | | |
-| Combined (inner join) | | |
+| Combined, inner join | | 29,374 rows, 18 attributes |
+
+The combined width confirms the join was configured correctly: 7 + 12 − 1 = 18, the duplicate key dropped by "remove double attributes".
 
 > Note: the two labs apply these steps in different orders. RapidMiner removes duplicates before filtering missing values; the R script runs `na.omit()` before `duplicated()`. Intermediate counts are therefore measured against different base sets and are not expected to match.
 
@@ -41,10 +44,23 @@ The same cleaning and integration job performed twice, once in each tool, so the
 
 ## Class 3 — Classification (Decision Tree)
 
-Decision tree built in RapidMiner against `iris_train` and applied to `iris_predict` with Apply Model. Splits on `Petal_width` at the root, then `Petal_width` and `Petal_length`, separating Setosa cleanly and distinguishing Versicolor from Virginica in the lower branches.
+Decision tree built in RapidMiner against `iris_train` and applied to `iris_predict` with Apply Model. Splits on `Petal_width` at the root, then `Petal_width` and `Petal_length`, separating Setosa cleanly and distinguishing Versicolor from Virginica in the lower branches. The same model was also built in R with `rpart`, which produced a shallower tree and reported feature importances that RapidMiner does not surface.
+
+**The two datasets, included here as CSV:**
+
+| File | Rows | Attributes | Notes |
+|---|---|---|---|
+| `class-03/iris_train.csv` | 150 | 6 | Labeled. `Species_name` complete, no missing values |
+| `class-03/iris_predict.csv` | 19 | 5 | **Unlabeled.** `Species_name` empty for all 19 rows |
+
+Worth stating plainly, because it is easy to get wrong: the prediction set carries no labels. The model returns a predicted class and confidence scores for each of the 19 rows, but with no ground truth in the file, accuracy cannot be computed from it. Confidence is not accuracy.
+
+Fisher's iris data is public domain and ships with both R and RapidMiner, so these two files are included for reproducibility.
 
 ---
 
-## A note on course materials
+## A note on what is and is not here
 
-Lab instructions, slide decks, and datasets distributed by the instructor are **not** included in this repository. The course syllabus reserves copyright on all course materials and prohibits redistribution. Only my own scripts, exported processes, and result screenshots appear here.
+Lab instructions, slide decks, homework documents, and datasets distributed by the instructor are **not** in this repository. The course syllabus reserves copyright on all course materials and prohibits redistribution, and graded work is covered by the academic integrity policy.
+
+The RapidMiner processes and the R scripts were not saved to files while the labs were being done, so no `.rmp` or `.R` files exist to publish. Result screenshots, carrying their run timestamps, stand in their place. Processes are being saved going forward.
